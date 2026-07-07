@@ -1,0 +1,7 @@
+{
+  "name": "Technical-test",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
