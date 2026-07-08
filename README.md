@@ -39,3 +39,11 @@ Aplicación To-Do List desarrollada con Ionic 8, Angular 20 y Capacitor.
 - **Ordenamiento Inteligente**: Tareas pendientes arriba por orden de creación y completadas al fondo con opacidad reducida.
 - **Validación de Categoría**: Toast de advertencia que impide crear tareas sin categoría si la función está activa.
 - **Optimización de Rendimiento**: Uso de detección `OnPush`, Angular Signals para reactividad y bloque `@for` nativo de Angular en listas.
+
+-  **Esta es la configuracion remota de Firebase, un simple toggle que cambia entre falso y verdadero, y permite mostrar al usuario informacion o ocultar**
+<img width="1458" height="835" alt="Captura de pantalla 2026-07-08 a la(s) 3 57 38 p m" src="https://github.com/user-attachments/assets/211aca6f-106c-4db6-86ea-e74657b6ff80" />
+<img width="738" height="1600" alt="WhatsApp Image 2026-07-08 at 17 45 53" src="https://github.com/user-attachments/assets/1dd7a4af-d3e2-45d8-b881-7664a651a67c" />
+<img width="738" height="1600" alt="WhatsApp Image 2026-07-08 at 17 45 53 (1)" src="https://github.com/user-attachments/assets/2b39d73c-108d-4ace-bbeb-85b234d9a15f" />
+
+
+
