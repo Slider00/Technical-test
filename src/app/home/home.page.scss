@@ -7,6 +7,7 @@
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
   --card-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.08), 0 1px 3px rgba(99, 102, 241, 0.02);
+  --settings-color: #64748b;
 }
 
 :host-context(.dark) {
@@ -14,6 +15,7 @@
   --glass-bg: rgba(17, 24, 39, 0.7);
   --glass-border: rgba(255, 255, 255, 0.06);
   --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1);
+  --settings-color: #cbd5e1;
 }
 
 ion-content {
@@ -183,7 +185,7 @@ ion-content {
   --padding-start: 8px;
   --padding-end: 8px;
   margin: 0;
-  color: #64748b;
+  color: var(--settings-color);
   
   &:hover {
     color: var(--app-primary);

@@ -10,9 +10,12 @@
     </ion-buttons>
     <ion-title>{{ t().title }}</ion-title>
     <ion-buttons slot="end">
-      <ion-chip [color]="isFirebaseActive() ? 'success' : 'medium'" class="ion-no-margin ion-margin-horizontal">
-        <ion-label>{{ isFirebaseActive() ? t().firebaseOnline : t().firebaseOffline }}</ion-label>
-      </ion-chip>
+      <ion-icon 
+        [name]="isFirebaseActive() ? 'cloud-done-outline' : 'cloud-offline-outline'" 
+        [color]="isFirebaseActive() ? 'success' : 'medium'"
+        style="font-size: 24px;"
+        class="ion-no-margin ion-margin-horizontal">
+      </ion-icon>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>

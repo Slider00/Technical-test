@@ -30,23 +30,12 @@ export class TodoService {
     let parsedCategories: Category[] = [];
     if (savedCategories) {
       parsedCategories = JSON.parse(savedCategories);
-    } else {
-      parsedCategories = [
-        { id: 'cat-1', name: 'Personal', color: '#3880ff' },
-        { id: 'cat-2', name: 'Trabajo', color: '#2dd36f' },
-        { id: 'cat-3', name: 'Ideas', color: '#eb445a' }
-      ];
     }
     this.categories.set(parsedCategories);
 
     let parsedTasks: Task[] = [];
     if (savedTasks) {
       parsedTasks = JSON.parse(savedTasks);
-    } else {
-      parsedTasks = [
-        { id: 'task-1', title: 'Completar prueba técnica', completed: false, categoryId: 'cat-2', createdAt: Date.now() },
-        { id: 'task-2', title: 'Comprar víveres', completed: true, categoryId: 'cat-1', createdAt: Date.now() - 3600000 }
-      ];
     }
     this.tasks.set(parsedTasks);
   }

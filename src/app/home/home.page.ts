@@ -24,7 +24,7 @@ import {
   IonToast
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, trashOutline, createOutline, settingsOutline, closeOutline, checkmarkOutline, sunnyOutline, moonOutline } from 'ionicons/icons';
+import { addOutline, trashOutline, createOutline, settingsOutline, closeOutline, checkmarkOutline, sunnyOutline, moonOutline, cloudDoneOutline, cloudOfflineOutline } from 'ionicons/icons';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { TodoService } from '../services/todo.service';
 import { FirebaseService } from '../services/firebase.service';
@@ -116,7 +116,7 @@ export class HomePage {
   usingLocalOverride = computed(() => this.firebaseService.usingLocalOverride());
 
   constructor() {
-    addIcons({ addOutline, trashOutline, createOutline, settingsOutline, closeOutline, checkmarkOutline, sunnyOutline, moonOutline });
+    addIcons({ addOutline, trashOutline, createOutline, settingsOutline, closeOutline, checkmarkOutline, sunnyOutline, moonOutline, cloudDoneOutline, cloudOfflineOutline });
     this.initTheme();
     this.initLanguage();
   }
