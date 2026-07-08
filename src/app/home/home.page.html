@@ -1,20 +1,269 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="toggleTheme()">
+        <ion-icon slot="icon-only" [name]="isDarkMode() ? 'sunny-outline' : 'moon-outline'"></ion-icon>
+      </ion-button>
+      <ion-button (click)="toggleLanguage()">
+        <span style="font-weight: 700; font-size: 13px;">{{ currentLanguage().toUpperCase() }}</span>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ t().title }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-chip [color]="isFirebaseActive() ? 'success' : 'medium'" class="ion-no-margin ion-margin-horizontal">
+        <ion-label>{{ isFirebaseActive() ? t().firebaseOnline : t().firebaseOffline }}</ion-label>
+      </ion-chip>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="content-container">
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+    <ion-card class="add-task-card ion-no-margin ion-margin-bottom">
+      <ion-card-content>
+        <div class="add-task-form">
+          <ion-input 
+            type="text" 
+            [placeholder]="t().newTaskPlaceholder" 
+            [(ngModel)]="newTaskTitle" 
+            (keyup.enter)="addTask()"
+            class="task-input">
+          </ion-input>
+
+          @if (showCategoriesFeature()) {
+            <ion-select 
+              interface="popover" 
+              [placeholder]="t().categorySelectLabel" 
+              [(ngModel)]="newTaskCategoryId"
+              class="category-select">
+              <ion-select-option value="">{{ t().categorySelectNone }}</ion-select-option>
+              @for (category of categories(); track category.id) {
+                <ion-select-option [value]="category.id">{{ category.name }}</ion-select-option>
+              }
+            </ion-select>
+          }
+
+          <ion-button fill="clear" (click)="addTask()" class="add-button">
+            <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="stats-card ion-no-margin ion-margin-bottom">
+      <ion-card-content class="stats-content">
+        <div class="stats-text-row">
+          <span class="stats-title">
+            {{ t().progressTitle }}
+            @if (showCategoriesFeature() && selectedFilterCategoryId() !== 'all') {
+              <span class="stats-subtitle">({{ getCategoryName(selectedFilterCategoryId()) }})</span>
+            }
+          </span>
+          <span class="stats-percentage">{{ completedTasksCount() }} {{ t().progressOf }} {{ totalTasksCount() }} ({{ completionPercentage() }}%)</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" [style.width.%]="completionPercentage()"></div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    @if (showCategoriesFeature()) {
+      <div class="category-filter-bar">
+        <div class="chips-scroll-container">
+          <ion-chip 
+            [outline]="selectedFilterCategoryId() !== 'all'"
+            color="primary"
+            (click)="selectFilterCategory('all')">
+            <ion-label>{{ t().filterAll }}</ion-label>
+          </ion-chip>
+
+          @for (category of categories(); track category.id) {
+            <ion-chip 
+              [outline]="selectedFilterCategoryId() !== category.id"
+              [style.--color]="category.color"
+              (click)="selectFilterCategory(category.id)">
+              <span class="color-dot" [style.background-color]="category.color"></span>
+              <ion-label>{{ category.name }}</ion-label>
+            </ion-chip>
+          }
+        </div>
+
+        <ion-button fill="clear" size="small" id="open-categories-modal" class="settings-button">
+          <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+        </ion-button>
+      </div>
+    }
+
+    <ion-searchbar 
+      [(ngModel)]="searchQuery" 
+      [placeholder]="t().searchPlaceholder" 
+      debounce="100"
+      class="task-searchbar ion-no-padding ion-margin-bottom">
+    </ion-searchbar>
+
+    <ion-list class="task-list ion-no-padding">
+      @for (task of filteredTasks(); track task.id) {
+        <ion-item class="task-item" lines="full">
+          <ion-checkbox 
+            slot="start" 
+            [checked]="task.completed" 
+            (ionChange)="toggleTask(task.id)">
+          </ion-checkbox>
+
+          <ion-label [class.completed]="task.completed" class="task-label">
+            <h2>{{ task.title }}</h2>
+            @if (showCategoriesFeature() && task.categoryId) {
+              <span 
+                class="task-category-tag" 
+                [style.background-color]="getCategoryColor(task.categoryId) + '1c'"
+                [style.color]="getCategoryColor(task.categoryId)">
+                {{ getCategoryName(task.categoryId) }}
+              </span>
+            }
+          </ion-label>
+
+          <ion-button slot="end" fill="clear" color="danger" (click)="deleteTask(task.id)">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      } @empty {
+        <div class="empty-state ion-text-center ion-padding">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="empty-state-icon">
+            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+          </svg>
+          <h3>{{ t().allCaughtUp }}</h3>
+          <p>{{ t().emptyStateSubtitle }}</p>
+        </div>
+      }
+    </ion-list>
+
+    <ion-card class="dev-settings-card ion-no-margin ion-margin-top">
+      <ion-card-content class="dev-settings-content">
+        <div class="dev-settings-header">
+          <div class="dev-settings-title-group">
+            <h3>{{ t().devModeTitle }}</h3>
+            <p>{{ t().devModeSubtitle }}</p>
+          </div>
+          @if (usingLocalOverride()) {
+            <ion-button fill="solid" size="small" color="warning" (click)="resetFirebaseOverride()" class="dev-reset-btn">
+              {{ t().resetBtn }}
+            </ion-button>
+          }
+        </div>
+
+        <div class="dev-toggle-row">
+          <ion-label>
+            <span>{{ t().categoriesModule }}</span>
+          </ion-label>
+          <ion-toggle 
+            [checked]="showCategoriesFeature()" 
+            (ionChange)="toggleFirebaseOverride($event)"
+            color="primary">
+          </ion-toggle>
+        </div>
+
+        <div class="dev-status-footer">
+          <span class="status-dot" [class.active]="isFirebaseActive()"></span>
+          <span class="status-text">
+            @if (usingLocalOverride()) {
+              {{ t().simulatingLocal }}
+            } @else if (isFirebaseActive()) {
+              {{ t().syncedFirebase }}
+            } @else {
+              {{ t().offlineFirebase }}
+            }
+          </span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
   </div>
+
+  @if (showCategoriesFeature()) {
+    <ion-modal #modal trigger="open-categories-modal">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>{{ t().categoriesModalTitle }}</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="modal.dismiss()">
+                <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content class="ion-padding">
+          <div class="modal-form-container">
+            <h3>{{ t().newCategoryTitle }}</h3>
+            <div class="category-add-row">
+              <ion-input 
+                type="text" 
+                [placeholder]="t().categoryNamePlaceholder" 
+                [(ngModel)]="newCategoryName">
+              </ion-input>
+              <input 
+                type="color" 
+                [(ngModel)]="newCategoryColor" 
+                class="color-picker-input">
+              <ion-button fill="clear" (click)="addCategory()">
+                <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+              </ion-button>
+            </div>
+
+            <h3 class="ion-margin-top">{{ t().existingCategoriesTitle }}</h3>
+            <div class="category-list">
+              @for (category of categories(); track category.id) {
+                <div class="category-item-row" [class.editing]="editingCategoryId() === category.id">
+                  @if (editingCategoryId() === category.id) {
+                    <div class="category-edit-row">
+                      <ion-input 
+                        type="text" 
+                        [(ngModel)]="editingCategoryName"
+                        class="category-edit-input">
+                      </ion-input>
+                      <input 
+                        type="color" 
+                        [(ngModel)]="editingCategoryColor" 
+                        class="color-picker-input">
+                      <div class="edit-actions">
+                        <ion-button fill="clear" color="success" (click)="updateCategory()">
+                          <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
+                        </ion-button>
+                        <ion-button fill="clear" color="medium" (click)="cancelEditCategory()">
+                          <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+                        </ion-button>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="category-info">
+                      <span class="color-dot-large" [style.background-color]="category.color"></span>
+                      <span class="category-name">{{ category.name }}</span>
+                    </div>
+                    <div class="category-actions">
+                      <ion-button fill="clear" color="primary" (click)="startEditCategory(category)">
+                        <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+                      </ion-button>
+                      <ion-button fill="clear" color="danger" (click)="deleteCategory(category.id)">
+                        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                      </ion-button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+  }
+  <ion-toast 
+    [isOpen]="isToastOpen()" 
+    [message]="t().toastWarningSelectCategory" 
+    [duration]="2000" 
+    (didDismiss)="isToastOpen.set(false)"
+    color="warning"
+    position="bottom">
+  </ion-toast>
 </ion-content>
